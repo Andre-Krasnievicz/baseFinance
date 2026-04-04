@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "next dev"
+    "dev": "next dev",
+    "build": "prisma migrate deploy && next build"
   },
   "author": "",
   "license": "ISC",
