@@ -29,7 +29,7 @@ export default function Login() {
     <div className="auth-container">
       <div className="auth-card">
         <div className="auth-header">
-          <h1>BaseFinance</h1>
+          <h1>KFinance</h1>
           <p>Controle suas finanças pessoais</p>
         </div>
 
