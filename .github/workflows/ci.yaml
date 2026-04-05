@@ -1,10 +1,31 @@
 name: Automated Tests
 
-on: pull_request
+on:
+  pull_request:
+    branchs: [main]
 
 jobs:
   jest: Jest Ubuntu
   runs-on: ubuntu-latest
+
+  services:
+    postgres:
+      image: postgres:16
+      env:
+        POSTGRES_USER: test
+        POSTGRES_PASSWORD: test
+        POSTGRES_DB: basefinance_test
+      ports:
+        - 5432:5432
+      options: >-
+        --health-cmd="pg_isready -U test"
+        --health-interval=10s
+        --health-timeout=5s
+        --health-retries=5
+  env:
+    DATABASE_URL: postgresql://test:test@localhost:5432/basefinance_test
+    BETTER_AUTH_SECRET: ci-test-secret-not-real
+
   steps:
     - uses: actions/checkout@v4
 
@@ -13,5 +34,7 @@ jobs:
         node-version: lts/Jod
 
     - run: npm ci
+
+    - run: npx prisma migrate deploy
 
     - run: npm test
