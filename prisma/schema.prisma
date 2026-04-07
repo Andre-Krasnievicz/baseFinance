@@ -36,20 +36,20 @@ model Session {
 }
 
 model Account {
-  id                   String    @id @default(cuid())
-  accountId            String
-  providerId           String
-  userId               String
-  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  accessToken          String?
-  refreshToken         String?
-  idToken              String?
-  accessTokenExpiresAt DateTime?
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
   refreshTokenExpiresAt DateTime?
-  scope                String?
-  password             String?
-  createdAt            DateTime  @default(now())
-  updatedAt            DateTime  @updatedAt
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
 }
 
 model Verification {
@@ -76,16 +76,22 @@ model Category {
 }
 
 model Transaction {
-  id          String    @id @default(cuid())
-  amount      Float
-  description String
-  type        String // income | expense
-  date        DateTime  @default(now())
-  categoryId  String?
-  category    Category? @relation(fields: [categoryId], references: [id])
-  userId      String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  notes       String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id                String        @id @default(cuid())
+  amount            Float
+  description       String
+  type              String // income | expense
+  date              DateTime      @default(now())
+  categoryId        String?
+  category          Category?     @relation(fields: [categoryId], references: [id])
+  userId            String
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  notes             String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  recurrenceType    String?
+  installmentTotal  Int?
+  installmentNumber Int?
+  parentId          String?
+  parent            Transaction?  @relation("Installments", fields: [parentId], references: [id], onDelete: SetNull)
+  installments      Transaction[] @relation("Installments")
 }

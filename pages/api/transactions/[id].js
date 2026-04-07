@@ -42,9 +42,36 @@ export default async function handler(req, res) {
   }
 
   if (req.method === "DELETE") {
-    await prisma.transaction.delete({ where: { id } });
+    const { deleteScope = "single" } = req.query;
+
+    if (
+      deleteScope === "remaining" &&
+      transaction.recurrenceType === "installment"
+    ) {
+      const groupParentId = transaction.parentId || transaction.id;
+
+      await prisma.transaction.deleteMany({
+        where: {
+          userId,
+          OR: [
+            {
+              id: groupParentId,
+              installmentNumber: { gte: transaction.installmentNumber },
+            },
+            {
+              parentId: groupParentId,
+              installmentNumber: { gte: transaction.installmentNumber },
+            },
+          ],
+        },
+      });
+    } else {
+      await prisma.transaction.delete({ where: { id } });
+    }
     return res.status(204).end();
   }
 
-  return res.status(405).json({ error: "Método não permitido" });
+  return res.status(405).json({
+    error: "Método não autorizado!",
+  });
 }

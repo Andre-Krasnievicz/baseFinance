@@ -29,7 +29,11 @@ export default function Transactions() {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState([]);
-  const [filter, setFilter] = useState({ type: "", categoryId: "" });
+  const [filter, setFilter] = useState({
+    type: "",
+    categoryId: "",
+    recurrenceType: "",
+  });
 
   useEffect(() => {
     fetch("/api/categories")
@@ -41,6 +45,8 @@ export default function Transactions() {
     const params = new URLSearchParams();
     if (filter.type) params.set("type", filter.type);
     if (filter.categoryId) params.set("categoryId", filter.categoryId);
+    if (filter.recurrenceType)
+      params.set("recurrenceType", filter.recurrenceType);
 
     setLoading(true);
     fetch(`/api/transactions?${params}`)
@@ -52,13 +58,33 @@ export default function Transactions() {
       });
   }, [filter]);
 
-  async function handleDelete(id) {
-    if (!confirm("Deseja excluir esta transação?")) return;
+  async function handleDelete(transaction) {
+    let deleteScope = "single";
 
-    const res = await fetch(`/api/transactions/${id}`, { method: "DELETE" });
+    if (transaction.recurrenceType === "installment") {
+      const choice = confirm(
+        `Parcela ${transaction.installmentNumber}/${transaction.installmentTotal}\n\n` +
+          "Deseja excluir apenas esta parcela ou esta e todas as futuras?\n\n" +
+          "OK = Escolher escopo\nCancelar = Não excluir"
+      );
+      if (!choice) return;
+
+      const onlyThis = confirm(
+        "OK = Excluir apenas ESTA parcela\n" +
+          "Cancelar = Excluir esta e todas as parcelas futuras"
+      );
+      deleteScope = onlyThis ? "single" : "remaining";
+    } else {
+      if (!confirm("Deseja excluir esta transação?")) return;
+    }
+
+    const res = await fetch(
+      `/api/transactions/${transaction.id}?deleteScope=${deleteScope}`,
+      { method: "DELETE" }
+    );
     if (res.ok) {
-      setTransactions((prev) => prev.filter((t) => t.id !== id));
-      setTotal((prev) => prev - 1);
+      // Recarregar a lista para refletir exclusões em massa
+      setFilter((f) => ({ ...f }));
     }
   }
 
@@ -102,6 +128,19 @@ export default function Transactions() {
               </option>
             ))}
           </select>
+
+          <select
+            value={filter.recurrenceType}
+            onChange={(e) =>
+              setFilter((f) => ({ ...f, recurrenceType: e.target.value }))
+            }
+            className="filter-select"
+          >
+            <option value="">Todas as recorrências</option>
+            <option value="variable">Variáveis</option>
+            <option value="installment">Parceladas</option>
+            <option value="fixed">Fixas</option>
+          </select>
         </div>
 
         <div className="card">
@@ -131,7 +170,17 @@ export default function Transactions() {
                   </div>
 
                   <div className="transaction-info">
-                    <span className="transaction-desc">{t.description}</span>
+                    <span className="transaction-desc">
+                      {t.description}
+                      {t.recurrenceType === "installment" && (
+                        <span className="badge badge-installment">
+                          Parcela {t.installmentNumber}/{t.installmentTotal}
+                        </span>
+                      )}
+                      {t.recurrenceType === "fixed" && (
+                        <span className="badge badge-fixed">Fixa</span>
+                      )}
+                    </span>
                     <span className="transaction-meta">
                       {t.category?.name || "Sem categoria"} •{" "}
                       {formatDate(t.date)}
@@ -149,7 +198,7 @@ export default function Transactions() {
                       {formatCurrency(t.amount)}
                     </span>
                     <button
-                      onClick={() => handleDelete(t.id)}
+                      onClick={() => handleDelete(t)}
                       className="btn-icon btn-danger"
                       title="Excluir"
                     >

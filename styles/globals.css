@@ -772,9 +772,81 @@ a:hover {
 }
 
 /* ========================
+   RECURRENCE TOGGLE
+   ======================== */
+.recurrence-toggle {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.recurrence-btn {
+  flex: 1;
+  padding: 0.5rem 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 0.5rem;
+  background: white;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+.recurrence-btn:hover {
+  border-color: #94a3b8;
+}
+
+.recurrence-btn.active {
+  border-color: #6366f1;
+  background: #eef2ff;
+  color: #4f46e5;
+  font-weight: 600;
+}
+
+/* ========================
+   INSTALLMENT PREVIEW
+   ======================== */
+.installment-preview {
+  margin-bottom: 1.5rem;
+  padding: 0.75rem 1rem;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 0.5rem;
+  color: #166534;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* ========================
+   BADGES
+   ======================== */
+.badge {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  vertical-align: middle;
+}
+
+.badge-installment {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.badge-fixed {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+/* ========================
    RESPONSIVE
    ======================== */
 @media (max-width: 768px) {
+  .recurrence-toggle {
+    flex-direction: column;
+  }
+
   .sidebar {
     width: 60px;
   }

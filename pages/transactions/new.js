@@ -25,6 +25,8 @@ export default function NewTransaction() {
     categoryId: "",
     date: new Date().toISOString().slice(0, 10),
     notes: "",
+    recurrenceType: "",
+    installmentTotal: "",
   });
 
   useEffect(() => {
@@ -101,9 +103,55 @@ export default function NewTransaction() {
               </button>
             </div>
 
+            <div className="recurrence-toggle">
+              <button
+                type="button"
+                className={`recurrence-btn ${form.recurrenceType === "" ? "active" : ""}`}
+                onClick={() =>
+                  setForm((f) => ({
+                    ...f,
+                    recurrenceType: "",
+                    installmentTotal: "",
+                  }))
+                }
+              >
+                🔄 Variável
+              </button>
+              <button
+                type="button"
+                className={`recurrence-btn ${form.recurrenceType === "installment" ? "active" : ""}`}
+                onClick={() =>
+                  setForm((f) => ({
+                    ...f,
+                    recurrenceType: "installment",
+                    installmentTotal: "2",
+                  }))
+                }
+              >
+                💳 Parcelada
+              </button>
+              <button
+                type="button"
+                className={`recurrence-btn ${form.recurrenceType === "fixed" ? "active" : ""}`}
+                onClick={() =>
+                  setForm((f) => ({
+                    ...f,
+                    recurrenceType: "fixed",
+                    installmentTotal: "",
+                  }))
+                }
+              >
+                📌 Fixa
+              </button>
+            </div>
+
             <div className="form-grid">
               <div className="form-group">
-                <label>Valor (R$)</label>
+                <label>
+                  {form.recurrenceType === "installment"
+                    ? "Valor total da compra (R$)"
+                    : "Valor (R$)"}
+                </label>
                 <input
                   type="number"
                   name="amount"
@@ -126,7 +174,36 @@ export default function NewTransaction() {
                   required
                 />
               </div>
+
+              {form.recurrenceType === "installment" && (
+                <div className="form-group">
+                  <label>Número de parcelas</label>
+                  <input
+                    type="number"
+                    name="installmentTotal"
+                    value={form.installmentTotal}
+                    onChange={handleChange}
+                    min="2"
+                    max="48"
+                    required
+                  />
+                </div>
+              )}
             </div>
+
+            {form.recurrenceType === "installment" &&
+              form.amount &&
+              parseInt(form.installmentTotal) >= 2 && (
+                <div className="installment-preview">
+                  {form.installmentTotal}x de{" "}
+                  {new Intl.NumberFormat("pt-BR", {
+                    style: "currency",
+                    currency: "BRL",
+                  }).format(
+                    parseFloat(form.amount) / parseInt(form.installmentTotal)
+                  )}
+                </div>
+              )}
 
             <div className="form-group">
               <label>Descrição</label>
