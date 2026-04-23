@@ -183,7 +183,7 @@ html, body {
    PAGE
    ======================== */
 .page {
-  max-width: 900px;
+  width: 100%;
 }
 
 .page-title {
